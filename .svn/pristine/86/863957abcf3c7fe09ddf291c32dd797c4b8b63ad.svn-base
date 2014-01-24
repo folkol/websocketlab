@@ -1,0 +1,47 @@
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.MessageDigest;
+import java.util.Scanner;
+
+import javax.xml.bind.DatatypeConverter;
+
+
+public class EchoServer {
+
+    public static void main(String[] args) throws Exception {
+        ServerSocket serverSocket = new ServerSocket(1234);
+        Socket accept = serverSocket.accept();
+        System.out.println("Connection from: " + accept.getRemoteSocketAddress());
+        Scanner scanner = new Scanner(new InputStreamReader(accept.getInputStream(), "UTF-8")).useDelimiter("\r\n");
+        System.out.println(scanner.nextLine());
+        String socketKey = null;
+        while(true) {
+//            String header = scanner.next(".*:\\w");
+            String value = scanner.nextLine();
+            if(value.equals("")) break;
+            System.err.println(value);
+            if(value.contains("Sec-WebSocket-Key")) {
+                socketKey = value.split(":")[1].trim();
+            }
+        }
+        System.err.println(String.format("Socket key %s:", socketKey));
+
+        accept.getOutputStream().write("HTTP/1.1 101 Switching Protocols\r\n".getBytes());
+        accept.getOutputStream().write("Connection: Upgrade\r\n".getBytes());
+        accept.getOutputStream().write("Upgrade: websocket\r\n".getBytes());
+        accept.getOutputStream().write("Connection: Upgrade\r\n".getBytes());
+
+        MessageDigest instance = MessageDigest.getInstance("SHA-1");
+        System.out.println(DatatypeConverter.printBase64Binary(MessageDigest.getInstance("SHA-1").digest((socketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes())));
+        accept.getOutputStream().write(String.format("Sec-WebSocket-Accept: %s", DatatypeConverter.printBase64Binary(MessageDigest.getInstance("SHA-1").digest((socketKey+"258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes()))).getBytes());
+        accept.getOutputStream().write("\r\n\r\n".getBytes());
+
+        int i;
+        while((i = accept.getInputStream().read()) != -1)
+            System.out.print((char)i);
+
+        accept.close();
+    }
+
+}

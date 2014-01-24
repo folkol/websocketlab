@@ -1,0 +1,54 @@
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.security.MessageDigest;
+import java.util.Scanner;
+
+import javax.xml.bind.DatatypeConverter;
+
+
+public class EchoServer {
+
+    public static void main(String[] args) throws Exception {
+        ServerSocket serverSocket = new ServerSocket(1234);
+        Socket accept = serverSocket.accept();
+        System.out.println("Connection from: " + accept.getRemoteSocketAddress());
+        OutputStream out = accept.getOutputStream();
+        InputStream in = accept.getInputStream();
+
+        Scanner scanner = new Scanner(new InputStreamReader(in, "UTF-8")).useDelimiter("\r\n");
+        System.out.println(scanner.nextLine());
+        String socketKey = null;
+        while(true) {
+            String value = scanner.nextLine();
+            if(value.equals("")) break;
+            System.err.println(value);
+            if(value.contains("Sec-WebSocket-Key")) {
+                socketKey = value.split(":")[1].trim();
+            }
+        }
+        System.err.println(String.format("Socket key %s:", socketKey));
+
+        out.write("HTTP/1.1 101 Switching Protocols\r\n".getBytes());
+        out.write("Connection: Upgrade\r\n".getBytes());
+        out.write("Upgrade: websocket\r\n".getBytes());
+        out.write("Connection: Upgrade\r\n".getBytes());
+
+        String magickString = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        String acceptToken = socketKey+magickString;
+        byte[] digest = MessageDigest.getInstance("SHA-1").digest(acceptToken.getBytes());
+        String base64 = DatatypeConverter.printBase64Binary(digest);
+
+        out.write(String.format("Sec-WebSocket-Accept: %s\r\n\r\n", base64).getBytes());
+
+        int i;
+        while((i = in.read()) != -1) {
+            System.out.print((char)i);
+        }
+
+        accept.close();
+    }
+
+}

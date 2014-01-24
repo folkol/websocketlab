@@ -1,0 +1,93 @@
+WebSockets lab
+==============
+
+Works (By accepting, reading a payload, sending back the reversed payload and closing).
+No support for anything else than a non extended, non fragmented, text frames atm.
+
+References:
+http://stackoverflow.com/questions/8125507/how-can-i-send-and-receive-websocket-messages-on-the-server-side
+http://tools.ietf.org/html/rfc6455
+http://www.websocket.org/
+http://docs.oracle.com/javaee/7/tutorial/doc/websocket001.htm
+http://www.developerfusion.com/article/143158/an-introduction-to-websockets/
+http://net.tutsplus.com/tutorials/javascript-ajax/start-using-html5-websockets-today/
+http://en.wikipedia.org/wiki/WebSocket
+http://w2spconf.com/2011/papers/websocket.pdf
+
+
+
+Handshake:
+
+From client:
+
+  1.   An HTTP/1.1 or higher GET request, including a "Request-URI"
+        [RFC2616] that should be interpreted as a /resource name/
+        defined in Section 3 (or an absolute HTTP/HTTPS URI containing
+        the /resource name/).
+
+   2.   A |Host| header field containing the server's authority.
+
+   3.   An |Upgrade| header field containing the value "websocket",
+        treated as an ASCII case-insensitive value.
+
+   4.   A |Connection| header field that includes the token "Upgrade",
+        treated as an ASCII case-insensitive value.
+
+   5.   A |Sec-WebSocket-Key| header field with a base64-encoded (see
+        Section 4 of [RFC4648]) value that, when decoded, is 16 bytes in
+        length.
+
+   6.   A |Sec-WebSocket-Version| header field, with a value of 13.
+
+   7.   Optionally, an |Origin| header field.  This header field is sent
+        by all browser clients.  A connection attempt lacking this
+        header field SHOULD NOT be interpreted as coming from a browser
+        client.
+
+   8.   Optionally, a |Sec-WebSocket-Protocol| header field, with a list
+        of values indicating which protocols the client would like to
+        speak, ordered by preference.
+
+   9.   Optionally, a |Sec-WebSocket-Extensions| header field, with a
+        list of values indicating which extensions the client would like
+        to speak.  The interpretation of this header field is discussed
+        in Section 9.1.
+
+   10.  Optionally, other header fields, such as those used to send
+        cookies or request authentication to a server.  Unknown header
+        fields are ignored, as per [RFC2616].
+
+
+
+Wireshark:
+
+GET / HTTP/1.1
+Upgrade: websocket
+Connection: Upgrade
+Host: echo.websocket.org
+Origin: null
+Pragma: no-cache
+Cache-Control: no-cache
+Sec-WebSocket-Key: vduLpRIe+M7pw/qORXTbxA==
+Sec-WebSocket-Version: 13
+Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits, x-webkit-deflate-frame
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36
+Cookie: __utma=9925811.1996579650.1390467119.1390467119.1390471781.2; __utmc=9925811; __utmz=9925811.1390467119.1.1.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)
+
+HTTP/1.1 101 Web Socket Protocol Handshake
+Upgrade: WebSocket
+Connection: Upgrade
+Sec-WebSocket-Accept: 3YEYTTI3ed13wBH6H7wgET8GFsk=
+Server: Kaazing Gateway
+Date: Thu, 23 Jan 2014 10:43:05 GMT
+Access-Control-Allow-Origin: null
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Headers: content-type
+Access-Control-Allow-Headers: authorization
+Access-Control-Allow-Headers: x-websocket-extensions
+Access-Control-Allow-Headers: x-websocket-version
+Access-Control-Allow-Headers: x-websocket-protocol
+
+..:..%[..DI..asdas
+
+
